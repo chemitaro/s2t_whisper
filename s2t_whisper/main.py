@@ -14,6 +14,18 @@ from pydub import AudioSegment
 audio_file_path = "recording"
 
 
+def print_colored(text, color):
+    """指定された色でテキストを表示する関数."""
+    colors = {
+        "red": "\033[91m",
+        "grey": "\033[90m",
+        "end": "\033[0m",
+    }
+
+    color_code = colors.get(color, colors["end"])
+    print(f"{color_code}{text}{colors['end']}")
+
+
 def record_audio(filename=audio_file_path+".wav", fs=44100, channels=1):
     """ユーザーがエンターキーを押すまで録音を続け、ファイルをOgg Vorbis形式で保存する関数."""
     # 録音用のグローバル変数
@@ -24,7 +36,8 @@ def record_audio(filename=audio_file_path+".wav", fs=44100, channels=1):
         """内部で使用する録音処理関数."""
         global is_recording
         with sd.InputStream(samplerate=fs, channels=channels) as stream:
-            print('Recording in progress... Press "Enter" to stop')
+            print_colored('Recording in progress...', "red")
+            print_colored('Press "Enter" to stop', "grey")
             frames = []
             while is_recording:
                 data, _ = stream.read(fs)
@@ -40,14 +53,14 @@ def record_audio(filename=audio_file_path+".wav", fs=44100, channels=1):
         wav_file.setframerate(fs)
         wav_file.writeframes(np.array(wav_data * 32767, dtype=np.int16))
         wav_file.close()
-        print("Save WAV files...")
+        print_colored("Save WAV files...", "grey")
 
     def convert_to_ogg(wav_filename):
         """WAVファイルをOgg Vorbis形式に変換する関数."""
         ogg_filename = wav_filename.replace(".wav", ".ogg")
         audio = AudioSegment.from_wav(wav_filename)
         audio.export(ogg_filename, format="ogg")
-        print("Convert to Ogg file...")
+        print_colored("Convert to Ogg file...", "grey")
         os.remove(wav_filename)  # 元のWAVファイルを削除
         return ogg_filename
 
@@ -68,7 +81,7 @@ def record_audio(filename=audio_file_path+".wav", fs=44100, channels=1):
 
 def convert_speech_to_text(file_path=audio_file_path+".ogg", model="whisper-1", language="ja", temperature=0.0):
     """Convert an audio file to text using OpenAI's Whisper API."""
-    print("Convert to text...")
+    print_colored("Convert to text...", "grey")
     client = OpenAI()
     try:
         # Send the audio data to OpenAI's Whisper API
@@ -80,7 +93,7 @@ def convert_speech_to_text(file_path=audio_file_path+".ogg", model="whisper-1", 
         )
     except Exception as e:
         print(f"Error: {e}")
-        return ""
+        raise e
 
     # Extract and return the transcribed text
     return transcript.text
@@ -100,7 +113,12 @@ def main(*, model, language, temperature) -> str:
     record_audio()
 
     # 音声認識
-    return convert_speech_to_text(model=model, language=language, temperature=temperature)
+    try:
+        text = convert_speech_to_text(model=model, language=language, temperature=temperature)
+    except Exception:
+        text = convert_speech_to_text(model=model, language=language, temperature=temperature)
+
+    return text
 
 
 if __name__ == "__main__":
@@ -134,11 +152,12 @@ if __name__ == "__main__":
 
     while True:
         # ユーザー入力を受け取る
-        user_input = input('Press "enter" to start recording, press "q" to exit: ')
+        print_colored('Press "enter" to start recording, press "q" to exit: ', "grey")
+        user_input = input()
 
         # 'q'または'Q'が入力されたら終了
         if user_input.lower() == 'q':
-            print("Exit the program.")
+            print_colored("Exit the program.", "grey")
             break
 
         text = main(**vars(parser.parse_args()))
