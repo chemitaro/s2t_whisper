@@ -24,7 +24,7 @@ def record_audio(filename=audio_file_path+".wav", fs=44100, channels=1):
         """内部で使用する録音処理関数."""
         global is_recording
         with sd.InputStream(samplerate=fs, channels=channels) as stream:
-            print("録音中... エンターキーを押して停止")
+            print('Recording in progress... Press "Enter" to stop')
             frames = []
             while is_recording:
                 data, _ = stream.read(fs)
@@ -40,14 +40,14 @@ def record_audio(filename=audio_file_path+".wav", fs=44100, channels=1):
         wav_file.setframerate(fs)
         wav_file.writeframes(np.array(wav_data * 32767, dtype=np.int16))
         wav_file.close()
-        print(f"WAVファイル保存: {filename}")
+        print("Save WAV files...")
 
     def convert_to_ogg(wav_filename):
         """WAVファイルをOgg Vorbis形式に変換する関数."""
         ogg_filename = wav_filename.replace(".wav", ".ogg")
         audio = AudioSegment.from_wav(wav_filename)
         audio.export(ogg_filename, format="ogg")
-        print(f"Oggファイル変換完了: {ogg_filename}")
+        print("Convert to Ogg file...")
         os.remove(wav_filename)  # 元のWAVファイルを削除
         return ogg_filename
 
@@ -68,7 +68,7 @@ def record_audio(filename=audio_file_path+".wav", fs=44100, channels=1):
 
 def convert_speech_to_text(file_path=audio_file_path+".ogg", model="whisper-1", language="ja", temperature=0.0):
     """Convert an audio file to text using OpenAI's Whisper API."""
-    print("テキストに変換中...")
+    print("Convert to text...")
     client = OpenAI()
     try:
         # Send the audio data to OpenAI's Whisper API
@@ -96,7 +96,6 @@ def print_and_copy(text) -> None:
 
 def main(*, model, language, temperature) -> str:
     """メイン関数."""
-
     # 録音
     record_audio()
 
@@ -135,11 +134,11 @@ if __name__ == "__main__":
 
     while True:
         # ユーザー入力を受け取る
-        user_input = input("エンターキーを押すと録音開始、'q'を押すと終了: ")
+        user_input = input('Press "enter" to start recording, press "q" to exit: ')
 
         # 'q'または'Q'が入力されたら終了
         if user_input.lower() == 'q':
-            print("プログラムを終了します。")
+            print("Exit the program.")
             break
 
         text = main(**vars(parser.parse_args()))
