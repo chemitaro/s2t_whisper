@@ -87,7 +87,7 @@ def record_audio(filename=audio_file_path+".wav", fs=44100, channels=1):
     convert_to_ogg(filename)
 
 
-def convert_speech_to_text(file_path=audio_file_path+".ogg", model="whisper-1", language="ja", temperature=0.0):
+def convert_speech_to_text(file_path=audio_file_path+".ogg", model="whisper-1", language="ja", temperature=0.0, prompt=""):
     """Convert an audio file to text using OpenAI's Whisper API."""
     print_colored("Convert to text...", "grey")
     client = OpenAI()
@@ -97,7 +97,8 @@ def convert_speech_to_text(file_path=audio_file_path+".ogg", model="whisper-1", 
             file=open(file_path, "rb"),
             model=model,
             language=language,
-            temperature=temperature
+            temperature=temperature,
+            prompt=prompt
         )
     except Exception as e:
         print(f"Error: {e}")
@@ -115,21 +116,22 @@ def print_and_copy(text) -> None:
     pyperclip.copy(text)
 
 
-def main(*, model, language, temperature) -> str:
+def main(*, model, language, temperature, prompt) -> str:
     """メイン関数."""
     # 録音
     record_audio()
 
     # 音声認識
     try:
-        text = convert_speech_to_text(model=model, language=language, temperature=temperature)
+        text = convert_speech_to_text(model=model, language=language, temperature=temperature, prompt=prompt)
     except Exception:
-        text = convert_speech_to_text(model=model, language=language, temperature=temperature)
+        text = convert_speech_to_text(model=model, language=language, temperature=temperature, prompt=prompt)
 
     return text
 
 
-def app_run(*, model, language, temperature):
+def app_run(*, model, language, temperature, prompt):
+    """アプリケーションを実行する関数."""
     while True:
         # ユーザー入力を受け取る
         print_colored('Press "enter" to start recording, press "q" to exit: ', "grey")
@@ -173,6 +175,13 @@ if __name__ == "__main__":
         type=float,
         default=0.2,
         help="Temperature of the speech. 0.0 to 1.0.",
+    )
+    parser.add_argument(
+        "-p",
+        "--prompt",
+        type=str,
+        default="I am in charge of planning, development (front-end and back-end), and operation all by myself. The front-end development is component-oriented using Next.js, while the back-end uses Python as the main language and Django as a library. I like object-oriented programming and work on development following domain-driven design. ",
+        help="Prompt for the speech.",
     )
 
     app_run(**vars(parser.parse_args()))
