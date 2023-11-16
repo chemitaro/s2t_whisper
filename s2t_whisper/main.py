@@ -4,6 +4,8 @@ import argparse
 import os
 import threading
 import wave
+import sys
+import time
 
 import numpy as np
 import pyperclip
@@ -35,6 +37,7 @@ def record_audio(filename=audio_file_path+".wav", fs=44100, channels=1):
     def record_internal():
         """内部で使用する録音処理関数."""
         global is_recording
+        start_time = time.time()
         with sd.InputStream(samplerate=fs, channels=channels) as stream:
             print_colored('Recording in progress...', "red")
             print_colored('Press "Enter" to stop', "grey")
@@ -42,6 +45,12 @@ def record_audio(filename=audio_file_path+".wav", fs=44100, channels=1):
             while is_recording:
                 data, _ = stream.read(fs)
                 frames.append(data)
+
+                # 経過時間の表示（秒単位でカウントアップ）
+                elapsed_time = int(time.time() - start_time)
+                sys.stdout.write(f"\rRecording in progress: {elapsed_time} sec")
+                sys.stdout.flush()
+
             return frames
 
     def save_to_file(frames, filename):
