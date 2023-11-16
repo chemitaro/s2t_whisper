@@ -2,7 +2,6 @@
 
 import argparse
 import os
-import sys
 import threading
 import wave
 
@@ -76,21 +75,30 @@ def convert_speech_to_text(file_path=audio_file_path+".ogg", model="whisper-1", 
     :param language: Language of the speech. Default is 'Japanese'.
     :return: Transcribed text.
     """
-    # Load the audio file
-    # with open(file_path, "rb") as audio_file:
-    #     audio_data = audio_file.read()
+    print("テキストに変換中...")
     client = OpenAI()
-
-    # Send the audio data to OpenAI's Whisper API
-    transcript = client.audio.transcriptions.create(
-        file=open(file_path, "rb"),
-        model=model,
-        language=language,
-        temperature=temperature
-    )
+    try:
+        # Send the audio data to OpenAI's Whisper API
+        transcript = client.audio.transcriptions.create(
+            file=open(file_path, "rb"),
+            model=model,
+            language=language,
+            temperature=temperature
+        )
+    except Exception as e:
+        print(f"Error: {e}")
+        return ""
 
     # Extract and return the transcribed text
     return transcript.text
+
+
+def print_and_copy(text):
+    """ターミナルに表示し、クリップボードにコピーする関数."""
+    print('\n"""')
+    print(text)
+    print('"""')
+    pyperclip.copy(text)
 
 
 def main(*, model, language, temperature):
@@ -103,11 +111,10 @@ def main(*, model, language, temperature):
         record_audio()
 
         # 音声認識
-        text = convert_speech_to_text(model=model, language=language, temperature=temperature)
+        return convert_speech_to_text(model=model, language=language, temperature=temperature)
 
         # 認識結果を表示
-        print(text)
-        pyperclip.copy(text)
+        print_and_copy(text)
 
 
 if __name__ == "__main__":
@@ -139,4 +146,11 @@ if __name__ == "__main__":
         help="Temperature of the speech. Default is 0.0.",
     )
 
-    main(**vars(parser.parse_args()))
+    while True:
+        # エンターキーが押されるまで待機、"q"が入力されたら終了
+        input("エンターキーを押すと録音開始")
+
+        text = main(**vars(parser.parse_args()))
+
+        # 認識結果を表示
+        print_and_copy(text)
