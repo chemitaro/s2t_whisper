@@ -1,13 +1,16 @@
 """This module contains a function to record audio from the microphone and save it to a file."""
 
-import sounddevice as sd
-import numpy as np
-import wave
-import threading
-from pydub import AudioSegment
-import sys
-from openai import OpenAI
+import argparse
 import os
+import sys
+import threading
+import wave
+
+import numpy as np
+import pyperclip
+import sounddevice as sd
+from openai import OpenAI
+from pydub import AudioSegment
 
 audio_file_path = "recording"
 
@@ -90,7 +93,50 @@ def convert_speech_to_text(file_path=audio_file_path+".ogg", model="whisper-1", 
     return transcript.text
 
 
-record_audio()
-text = convert_speech_to_text()
+def main(*, model, language, temperature):
+    """メイン関数."""
+    while True:
+        # エンターキーが押されるまで待機
+        input("エンターキーを押すと録音開始")
 
-print(text)
+        # 録音
+        record_audio()
+
+        # 音声認識
+        text = convert_speech_to_text(model=model, language=language, temperature=temperature)
+
+        # 認識結果を表示
+        print(text)
+        pyperclip.copy(text)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="""
+        This program records audio from the microphone and saves it to a file.
+        """
+    )
+    parser.add_argument(
+        "-m",
+        "--model",
+        type=str,
+        default="whisper-1",
+        choices=["whisper-1"],
+        help="The model to use for transcription. Default is 'whisper-1'.",
+    )
+    parser.add_argument(
+        "-l",
+        "--language",
+        type=str,
+        default="ja",
+        help="Language of the speech. Default is 'Japanese'.",
+    )
+    parser.add_argument(
+        "-t",
+        "--temperature",
+        type=float,
+        default=0.0,
+        help="Temperature of the speech. Default is 0.0.",
+    )
+
+    main(**vars(parser.parse_args()))
