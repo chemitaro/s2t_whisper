@@ -60,6 +60,7 @@ def record_audio(filename=audio_file_path+".wav", fs=44100, channels=1):
         wav_file.setframerate(fs)
         wav_file.writeframes(np.array(wav_data * 32767, dtype=np.int16))
         wav_file.close()
+        print()
         print_colored("Save WAV files...", "grey")
 
     def convert_to_ogg(wav_filename):
@@ -128,6 +129,23 @@ def main(*, model, language, temperature) -> str:
     return text
 
 
+def app_run(*, model, language, temperature):
+    while True:
+        # ユーザー入力を受け取る
+        print_colored('Press "enter" to start recording, press "q" to exit: ', "grey")
+        user_input = input()
+
+        # 'q'または'Q'が入力されたら終了
+        if user_input.lower() == 'q':
+            print_colored("Exit the program.", "grey")
+            break
+
+        text = main(**vars(parser.parse_args()))
+
+        # 認識結果を表示
+        print_and_copy(text)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="""
@@ -153,21 +171,8 @@ if __name__ == "__main__":
         "-t",
         "--temperature",
         type=float,
-        default=0.0,
-        help="Temperature of the speech. Default is 0.0.",
+        default=0.2,
+        help="Temperature of the speech. 0.0 to 1.0.",
     )
 
-    while True:
-        # ユーザー入力を受け取る
-        print_colored('Press "enter" to start recording, press "q" to exit: ', "grey")
-        user_input = input()
-
-        # 'q'または'Q'が入力されたら終了
-        if user_input.lower() == 'q':
-            print_colored("Exit the program.", "grey")
-            break
-
-        text = main(**vars(parser.parse_args()))
-
-        # 認識結果を表示
-        print_and_copy(text)
+    app_run(**vars(parser.parse_args()))
