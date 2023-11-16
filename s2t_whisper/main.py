@@ -184,7 +184,7 @@ if __name__ == "__main__":
         "-p",
         "--prompt",
         type=str,
-        default="I am in charge of planning, development (front-end and back-end), and operation all by myself. The front-end development is component-oriented using Next.js, while the back-end uses Python as the main language and Django as a library. I like object-oriented programming and work on development following domain-driven design. ",  # noqa: E501
+        default="I am the CEO of a company that plans, develops, and operates web services. My primary focus is on developing web applications and SaaS for the real estate sector. In terms of technology, we first develop locally using Docker and Docker Compose. For our production environment, we deploy and manage our backend APIs on Fly.io and our frontend applications on Vercel. Our source code is managed on GitHub, and we employ GitHub Actions for CI/CD. Regarding frameworks, we use Django and the Django framework for our backend, developed in Python. Internally, we adopt Domain-Driven Design, structuring our data using Pydantic for our domain objects. For the frontend, we use Next.js and TypeScript. Our styles are crafted with Tailwind CSS. Currently, we are utilizing Version 14 of Next.js and developing with AppRouter. ",  # noqa: E501
         help="Prompt for the speech.",
     )
 
