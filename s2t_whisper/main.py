@@ -45,7 +45,7 @@ def record_audio(filename=audio_file_path+".wav", fs=44100, channels=1):
 
                 # 経過時間の表示（秒単位でカウントアップ）
                 elapsed_time = int(time.time() - start_time)
-                sys.stdout.write(f"\r{colors['red']}Recording in progress: {colors['end']}{elapsed_time} sec {colors['grey']}Press \"Enter\" to stop{colors['end']}")
+                sys.stdout.write(f"\r{colors['red']}Recording in progress: {colors['end']}{elapsed_time} sec {colors['grey']}Press \"Enter\" to stop{colors['end']}")  # noqa: E501
                 sys.stdout.flush()
 
             time.sleep(1)
@@ -60,7 +60,7 @@ def record_audio(filename=audio_file_path+".wav", fs=44100, channels=1):
         wav_file.setframerate(fs)
         wav_file.writeframes(np.array(wav_data * 32767, dtype=np.int16))
         wav_file.close()
-        print()
+        print("\n")
         print_colored("Save WAV files...", "grey")
 
     def convert_to_ogg(wav_filename):
@@ -90,6 +90,10 @@ def record_audio(filename=audio_file_path+".wav", fs=44100, channels=1):
 def convert_speech_to_text(file_path=audio_file_path+".ogg", model="whisper-1", language="ja", temperature=0.0, prompt=""):
     """Convert an audio file to text using OpenAI's Whisper API."""
     print_colored("Convert to text...", "grey")
+    print_colored(f" - model: {model}", "grey")
+    print_colored(f" - lang.: {language}", "grey")
+    print_colored(f" - temp.: {temperature}", "grey")
+    print_colored(f" - prompt: {prompt[:45]}...", "grey")
     client = OpenAI()
     try:
         # Send the audio data to OpenAI's Whisper API
@@ -110,9 +114,9 @@ def convert_speech_to_text(file_path=audio_file_path+".ogg", model="whisper-1", 
 
 def print_and_copy(text) -> None:
     """ターミナルに表示し、クリップボードにコピーする関数."""
-    print('\n"""')
+    print('\n')
     print(text)
-    print('"""\n')
+    print('\n')
     pyperclip.copy(text)
 
 
@@ -180,7 +184,7 @@ if __name__ == "__main__":
         "-p",
         "--prompt",
         type=str,
-        default="I am in charge of planning, development (front-end and back-end), and operation all by myself. The front-end development is component-oriented using Next.js, while the back-end uses Python as the main language and Django as a library. I like object-oriented programming and work on development following domain-driven design. ",
+        default="I am in charge of planning, development (front-end and back-end), and operation all by myself. The front-end development is component-oriented using Next.js, while the back-end uses Python as the main language and Django as a library. I like object-oriented programming and work on development following domain-driven design. ",  # noqa: E501
         help="Prompt for the speech.",
     )
 
