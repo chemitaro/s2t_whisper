@@ -27,7 +27,7 @@ def record_audio(filename=audio_file_path+".wav", fs=44100, channels=1):
             print("録音中... エンターキーを押して停止")
             frames = []
             while is_recording:
-                data, overflowed = stream.read(fs)
+                data, _ = stream.read(fs)
                 frames.append(data)
             return frames
 
@@ -67,14 +67,7 @@ def record_audio(filename=audio_file_path+".wav", fs=44100, channels=1):
 
 
 def convert_speech_to_text(file_path=audio_file_path+".ogg", model="whisper-1", language="ja", temperature=0.0):
-    """
-    Convert an audio file to text using OpenAI's Whisper API.
-
-    :param audio_file_path: Path to the audio file.
-    :param model: The model to use for transcription. Default is 'whisper-large'.
-    :param language: Language of the speech. Default is 'Japanese'.
-    :return: Transcribed text.
-    """
+    """Convert an audio file to text using OpenAI's Whisper API."""
     print("テキストに変換中...")
     client = OpenAI()
     try:
@@ -93,28 +86,22 @@ def convert_speech_to_text(file_path=audio_file_path+".ogg", model="whisper-1", 
     return transcript.text
 
 
-def print_and_copy(text):
+def print_and_copy(text) -> None:
     """ターミナルに表示し、クリップボードにコピーする関数."""
     print('\n"""')
     print(text)
-    print('"""')
+    print('"""\n')
     pyperclip.copy(text)
 
 
-def main(*, model, language, temperature):
+def main(*, model, language, temperature) -> str:
     """メイン関数."""
-    while True:
-        # エンターキーが押されるまで待機
-        input("エンターキーを押すと録音開始")
 
-        # 録音
-        record_audio()
+    # 録音
+    record_audio()
 
-        # 音声認識
-        return convert_speech_to_text(model=model, language=language, temperature=temperature)
-
-        # 認識結果を表示
-        print_and_copy(text)
+    # 音声認識
+    return convert_speech_to_text(model=model, language=language, temperature=temperature)
 
 
 if __name__ == "__main__":
@@ -147,8 +134,13 @@ if __name__ == "__main__":
     )
 
     while True:
-        # エンターキーが押されるまで待機、"q"が入力されたら終了
-        input("エンターキーを押すと録音開始")
+        # ユーザー入力を受け取る
+        user_input = input("エンターキーを押すと録音開始、'q'を押すと終了: ")
+
+        # 'q'または'Q'が入力されたら終了
+        if user_input.lower() == 'q':
+            print("プログラムを終了します。")
+            break
 
         text = main(**vars(parser.parse_args()))
 
