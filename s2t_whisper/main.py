@@ -116,7 +116,7 @@ def print_and_copy(text) -> None:
     """ターミナルに表示し、クリップボードにコピーする関数."""
     print('\n')
     print(text)
-    print('\n')
+    print_colored("Copy to clipboard.", "grey")
     pyperclip.copy(text)
 
 
@@ -138,6 +138,7 @@ def app_run(*, model, language, temperature, prompt):
     """アプリケーションを実行する関数."""
     while True:
         # ユーザー入力を受け取る
+        print('\n')
         print_colored('Press "enter" to start recording, press "q" to exit: ', "grey")
         user_input = input()
 
